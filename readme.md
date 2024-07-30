@@ -53,5 +53,5 @@ echo OPENAI_API_KEY="sk-xxx" >> .env
 ## Run streamlit druid bot
 
 ```bash
-streamlit run modular01.py --server.headless true --server.port 8585
+streamlit run streamlit_bot.py --server.headless true --server.port 8585
 ```

@@ -3,13 +3,14 @@ import gc
 import random
 import string
 from define_type_of_flow import define_type_of_flow
+from modular01 import ChatbotState
 
 greetings = ["hello", "hi", "hey", "greetings", "what's up"]
 responses = ["Hello!", "Hi there!", "Hey!", "Greetings!"]
 checkins = ["check", "in", "checkin"]
 checkin_responses = [
-    "For checking in, please give me your name and your email address. Thank you!",
-    "I will check in with you, please give me your name and your email address. Thank you!",
+    "For checking in, please provide your Name. Thank you!",
+    "I will check in with you, please give me your Name. Thank you!",
 ]
 
 # Initialize session state variables
@@ -17,6 +18,8 @@ if "type_of_flow" not in st.session_state:
     st.session_state.type_of_flow = "None"
 if "custom_flow" not in st.session_state:
     st.session_state.custom_flow = False
+if "chat_state" not in st.session_state:
+    st.session_state.chat_state = ChatbotState.ASK_NAME
 
 
 def reset_chat():
@@ -24,6 +27,7 @@ def reset_chat():
     st.session_state.context = None
     st.session_state.custom_flow = False  # Reset custom flow state
     st.session_state.type_of_flow = "None"  # Reset type of flow
+    st.session_state.chat_state = ChatbotState.ASK_NAME
     gc.collect()
 
 
@@ -52,7 +56,7 @@ def generate_response_from(user_input):
 def simplebot():
     st.title("Simple Check in Virtual Assistant Bot")
     st.caption(
-        f"Type of flow: {st.session_state.type_of_flow} | Custom flow: {st.session_state.custom_flow}"
+        f"`Type of flow: {st.session_state.type_of_flow} | Custom flow: {st.session_state.custom_flow} `"
     )
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -73,7 +77,8 @@ def simplebot():
             st.session_state.messages.append({"role": "assistant", "content": response})
             st.rerun()
     else:
-        define_type_of_flow(st.session_state.type_of_flow)
+        if st.session_state.chat_state != ChatbotState.DONE:
+            define_type_of_flow(st.session_state.type_of_flow)
     st.button("Clear Chat", on_click=reset_chat)
 
 

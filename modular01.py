@@ -109,7 +109,7 @@ def simplebot():
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    st.button("Restart", on_click=reset_chat)
+    # st.button("Restart", on_click=reset_chat)
 
 
 simplebot()
