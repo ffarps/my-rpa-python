@@ -57,8 +57,12 @@ def reset_chat():
     st.session_state.chat_state = ChatbotState.ASK_NAME
     st.session_state.user_name = ""
     st.session_state.user_email = ""
-    st.session_state.response = "Let's start the check-in process. What is your name?"
-    st.session_state.messages = []
+    st.session_state.response = (
+        "Welcome! Let's start the check-in process. What is your name?"
+    )
+    st.session_state.messages = [
+        {"role": "Assistant", "content": st.session_state.response}
+    ]
 
 
 def handle_input(user_input):
@@ -86,11 +90,10 @@ def handle_input(user_input):
 
 
 def simplebot():
-    st.title("Check-in Bot")
-    st.caption("State: " + st.session_state.chat_state)
+    # st.title("Check-in Bot")
+    st.caption("`State: " + st.session_state.chat_state + "`")
 
     if "messages" not in st.session_state:
-        st.session_state.messages = []
         reset_chat()
 
     if st.session_state.chat_state != ChatbotState.DONE:
