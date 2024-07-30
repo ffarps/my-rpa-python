@@ -4,7 +4,7 @@ import string
 
 
 class ChatbotState:
-    INITIAL = "initial"
+    # INITIAL = "initial"
     ASK_NAME = "ask_name"
     CONFIRM_NAME = "confirm_name"
     ASK_EMAIL = "ask_email"
@@ -26,25 +26,25 @@ if "response" not in st.session_state:
 
 
 def ask_name():
-    st.session_state.chat_state = ChatbotState.ASK_NAME
-    st.session_state.response = "Please provide your name."
+    st.session_state.chat_state = ChatbotState.CONFIRM_NAME
+    st.session_state.response = "Let's start the check-in process. What is your name?"
 
 
 def confirm_name(name):
     st.session_state.user_name = name
-    st.session_state.chat_state = ChatbotState.CONFIRM_NAME
     st.session_state.response = f"Is your name {name}? (yes/no)"
+    st.session_state.chat_state = ChatbotState.ASK_EMAIL
 
 
 def ask_email():
-    st.session_state.chat_state = ChatbotState.ASK_EMAIL
     st.session_state.response = "Please provide your email address."
+    st.session_state.chat_state = ChatbotState.CONFIRM_EMAIL
 
 
 def confirm_email(email):
     st.session_state.user_email = email
-    st.session_state.chat_state = ChatbotState.CONFIRM_EMAIL
     st.session_state.response = f"Is your email {email}? (yes/no)"
+    st.session_state.chat_state = ChatbotState.CHECK_IN
 
 
 def generate_reservation_number(length=6):
@@ -68,22 +68,39 @@ def reset_chat():
 
 def handle_input(user_input):
     state = st.session_state.chat_state
-    if state == ChatbotState.INITIAL:
+    if state == ChatbotState.ASK_NAME:
+        st.session_state.chat_state = ChatbotState.CONFIRM_NAME
         ask_name()
-    elif state == ChatbotState.ASK_NAME:
-        confirm_name(user_input)
+        ##print(f"Asking name: {user_input}")
     elif state == ChatbotState.CONFIRM_NAME:
-        if user_input.lower() == "yes":
-            ask_email()
-        else:
-            ask_name()
+        confirm_name(user_input)
+        # print(f"Confirming name: {user_input}")
     elif state == ChatbotState.ASK_EMAIL:
-        confirm_email(user_input)
+        ask_email()
+        # print(f"Asking email: {user_input}")
     elif state == ChatbotState.CONFIRM_EMAIL:
-        if user_input.lower() == "yes":
-            check_in()
-        else:
-            ask_email()
+        confirm_email(user_input)
+        # print(f"Confirming email: {user_input}")
+    elif state == ChatbotState.CHECK_IN:
+        check_in()
+        # print(f"check in: {user_input}")
+
+    # if state == ChatbotState.INITIAL:
+    #     ask_name()
+    # elif state == ChatbotState.ASK_NAME:
+    #     confirm_name(user_input)
+    # elif state == ChatbotState.CONFIRM_NAME:
+    #     if user_input.lower() == "yes":
+    #         ask_email()
+    #     else:
+    #         ask_name()
+    # elif state == ChatbotState.ASK_EMAIL:
+    #     confirm_email(user_input)
+    # elif state == ChatbotState.CONFIRM_EMAIL:
+    #     if user_input.lower() == "yes":
+    #         check_in()
+    #     else:
+    #         ask_email()
 
 
 def simplebot():
@@ -93,48 +110,19 @@ def simplebot():
     if "messages" not in st.session_state:
         st.session_state.messages = []
         reset_chat()
+    if st.session_state.chat_state != ChatbotState.DONE:
+        user_input = st.chat_input("your response")
+        if user_input:
+            handle_input(user_input)
+            st.session_state.messages.append({"role": "User", "content": user_input})
 
-    st.session_state.messages.append(
-        {"role": "Assistant", "content": st.session_state.response}
-    )
-
-    user_input = st.chat_input("your response")
-    if user_input:
-        handle_input(user_input)
-        st.session_state.messages.append({"role": "User", "content": user_input})
-        st.write(st.session_state.response)
-
+        st.session_state.messages.append(
+            {"role": "Assistant", "content": st.session_state.response}
+        )
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-
-    # if "messages" not in st.session_state:
-    #     st.session_state.messages = []
-    #     reset_chat()
-    # for message in st.session_state.messages:
-    #     with st.chat_message(message["role"]):
-    #         st.markdown(message["content"])
-    # if "response" in st.session_state:
-    #     # st.write(st.session_state.response)
-    #     st.session_state.messages.append(
-    #         {"role": "assistant", "content": st.session_state.response}
-    #     )
-
-    # if st.session_state.chat_state == ChatbotState.DONE:
-    #     st.session_state.messages.append(
-    #         {"role": "assistant", "content": st.session_state.response}
-    #     )
-
-    # if st.session_state.chat_state != ChatbotState.DONE:
-    #     st.session_state.messages.append(
-    #         {"role": "assistant", "content": st.session_state.response}
-    #     )
-    #     user_input = st.chat_input("your response")
-    #     if user_input:
-    #         handle_input(user_input)
-    #         st.session_state.messages.append({"role": "user", "content": user_input})
-
-    # st.button("Restart", on_click=reset_chat)
+    st.button("Restart", on_click=reset_chat)
 
 
 simplebot()
